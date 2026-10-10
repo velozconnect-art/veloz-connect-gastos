@@ -18,9 +18,9 @@ if 'gastos_diarios' not in st.session_state:
     st.session_state.gastos_diarios = pd.DataFrame(dados_iniciais)
 
 # Logotipo na Barra Lateral (Sidebar)
-st.sidebar.image("https://raw.githubusercontent.com/velozconnect-art/veloz-connect-gastos/main/logo.jpg", use_column_width=True)
+st.sidebar.image("logo.jpg", use_column_width=True)
 
-# Título Principal (Sem o avião)
+# Título Principal
 st.title("Veloz Connect - Sistema de Controle de Gastos Mensais")
 st.markdown("Gerenciamento completo de despesas diárias, custos fixos e folha de pagamento.")
 
@@ -77,7 +77,7 @@ elif menu == "Dashboard e Gráficos":
         st.markdown("---")
         df_cat = df.groupby('Categoria')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
         
-       col_g1, col_g2 = st.columns(2)
+        col_g1, col_g2 = st.columns(2)
         with col_g1:
             st.subheader("🔻 Visão em Pirâmide (Funil de Gastos)")
             fig_funnel = px.funnel(df_cat, x='Valor', y='Categoria', title="Distribuição de Custos por Categoria", color='Categoria')
