@@ -17,9 +17,14 @@ if 'gastos_diarios' not in st.session_state:
     ]
     st.session_state.gastos_diarios = pd.DataFrame(dados_iniciais)
 
-# Título Principal
-st.title("🚀 Veloz Connect - Sistema de Controle de Gastos Mensais")
+# Logotipo na Barra Lateral (Sidebar)
+st.sidebar.image("https://raw.githubusercontent.com/velozconnect-art/veloz-connect-gastos/main/logo.jpg", use_column_width=True)
+
+# Título Principal (Sem o avião)
+st.title("Veloz Connect - Sistema de Controle de Gastos Mensais")
 st.markdown("Gerenciamento completo de despesas diárias, custos fixos e folha de pagamento.")
+
+st.sidebar.markdown("---")
 st.sidebar.header("Painel de Navegação")
 menu = st.sidebar.radio("Escolha uma opção:", ["Lançamento de Gastos", "Dashboard e Gráficos", "Relatórios Detalhados"])
 
