@@ -88,14 +88,31 @@ elif menu == "Dashboard e Gráficos":
             fig_pie = px.pie(df_cat, names='Categoria', values='Valor', title="Participação por Categoria de Gasto", hole=0.4)
             st.plotly_chart(fig_pie, use_container_width=True)
 
-# 3. RELATÓRIOS DETALHADOS
+# 3. RELATÓRIOS DETALHADOS E EXCLUSÃO
 elif menu == "Relatórios Detalhados":
-    st.header("📋 Histórico Completo de Lançamentos")
+    st.header("📋 Histórico Completo e Gestão de Lançamentos")
     df = st.session_state.gastos_diarios
     if not df.empty:
-        filtro_tipo = st.selectbox("Filtrar por Tipo", ["Todos", "Gastos Diários (Variáveis)", "Gastos Fixos"])
-        df_filtrado = df if filtro_tipo == "Todos" else df[df['Tipo'] == filtro_tipo]
-        st.dataframe(df_filtrado, use_container_width=True)
-        if st.button("🗑️ Limpar Todos os Dados"):
-            st.session_state.gastos_diarios = pd.DataFrame(columns=['Data', 'Tipo', 'Categoria', 'Descricao', 'Valor', 'Colaborador/Fornecedor'])
-            st.rerun()
+        st.info("💡 Dica: Para apagar um registo errado, escolha o ID/linha correspondente abaixo e clique em 'Apagar Registo Selecionado'.")
+        
+        # Criar uma coluna de índice legível para o utilizador selecionar
+        df_exibir = df.copy()
+        df_exibir.index = df_exibir.index + 1
+        
+        st.dataframe(df_exibir, use_container_width=True)
+        
+        col_del1, col_del2 = st.columns(2)
+        with col_del1:
+            linha_para_apagar = st.number_input("Número da Linha (ID) a apagar", min_value=1, max_value=len(df), step=1)
+            if st.button("❌ Apagar Registo Selecionado"):
+                idx_real = linha_para_apagar - 1
+                st.session_state.gastos_diarios = df.drop(df.index[idx_real]).reset_index(drop=True)
+                st.success(f"Registo da linha {linha_para_apagar} apagado com sucesso!")
+                st.rerun()
+                
+        with col_del2:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("🗑️ Limpar Todos os Registos"):
+                st.session_state.gastos_diarios = pd.DataFrame(columns=['Data', 'Tipo', 'Categoria', 'Descricao', 'Valor', 'Colaborador/Fornecedor'])
+                st.success("Todos os dados foram limpos!")
+                st.rerun()
