@@ -77,10 +77,10 @@ elif menu == "Dashboard e Gráficos":
         st.markdown("---")
         df_cat = df.groupby('Categoria')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
         
-        col_g1, col_g2 = st.columns(2)
+       col_g1, col_g2 = st.columns(2)
         with col_g1:
             st.subheader("🔻 Visão em Pirâmide (Funil de Gastos)")
-            fig_funnel = px.funnel(df_cat, x='Valor', y='Categoria', title="Distribuição de Custos por Categoria", color='Categoria', text_auto='.2f')
+            fig_funnel = px.funnel(df_cat, x='Valor', y='Categoria', title="Distribuição de Custos por Categoria", color='Categoria')
             fig_funnel.update_layout(showlegend=False)
             st.plotly_chart(fig_funnel, use_container_width=True)
         with col_g2:
