@@ -84,7 +84,7 @@ elif menu == "Dashboard e Gráficos":
             fig_funnel.update_layout(showlegend=False)
             st.plotly_chart(fig_funnel, use_container_width=True)
         with col_g2:
-            st.subheader("🍩 Distribuição Percentual (Rosca)")
+            st.subheader("Distribuição Percentual")
             fig_pie = px.pie(df_cat, names='Categoria', values='Valor', title="Participação por Categoria de Gasto", hole=0.4)
             st.plotly_chart(fig_pie, use_container_width=True)
 
