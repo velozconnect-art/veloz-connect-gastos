@@ -88,26 +88,26 @@ elif menu == "Dashboard e Gráficos":
             fig_pie = px.pie(df_cat, names='Categoria', values='Valor', title="Participação por Categoria de Gasto", hole=0.4)
             st.plotly_chart(fig_pie, use_container_width=True)
 
-# 3. RELATÓRIOS DETALHADOS E EXCLUSÃO
+# 3. RELATÓRIOS DETALHADOS E EXCLUSÃO INDIVIDUAL SEGURA
 elif menu == "Relatórios Detalhados":
     st.header("📋 Histórico Completo e Gestão de Lançamentos")
     df = st.session_state.gastos_diarios
     if not df.empty:
-        st.info("💡 Dica: Para apagar um registo errado, escolha o ID/linha correspondente abaixo e clique em 'Apagar Registo Selecionado'.")
+        st.info("💡 Cada linha tem um número de ID único. Insira exatamente o ID do registo que deseja apagar.")
         
-        # Criar uma coluna de índice legível para o utilizador selecionar
-        df_exibir = df.copy()
-        df_exibir.index = df_exibir.index + 1
+        # Atribuir uma coluna de ID fixa baseada na posição atual
+        df_tabela = df.copy()
+        df_tabela.insert(0, 'ID_Registo', range(1, len(df_tabela) + 1))
         
-        st.dataframe(df_exibir, use_container_width=True)
+        st.dataframe(df_tabela, use_container_width=True)
         
         col_del1, col_del2 = st.columns(2)
         with col_del1:
-            linha_para_apagar = st.number_input("Número da Linha (ID) a apagar", min_value=1, max_value=len(df), step=1)
-            if st.button("❌ Apagar Registo Selecionado"):
-                idx_real = linha_para_apagar - 1
-                st.session_state.gastos_diarios = df.drop(df.index[idx_real]).reset_index(drop=True)
-                st.success(f"Registo da linha {linha_para_apagar} apagado com sucesso!")
+            id_para_apagar = st.selectbox("Selecione o ID da linha para apagar", options=list(range(1, len(df) + 1)))
+            if st.button("❌ Apagar Apenas este Registo"):
+                indice_real = id_para_apagar - 1
+                st.session_state.gastos_diarios = df.drop(df.index[indice_real]).reset_index(drop=True)
+                st.success(f"Registo ID {id_para_apagar} apagado com sucesso!")
                 st.rerun()
                 
         with col_del2:
