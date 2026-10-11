@@ -35,7 +35,7 @@ if menu == "Lançamento de Gastos":
             tipo_gasto = st.selectbox("Tipo de Gasto", ["Gastos Diários (Variáveis)", "Gastos Fixos"])
         with col2:
             if tipo_gasto == "Gastos Diários (Variáveis)":
-                categoria = st.selectbox("Categoria", ["Gasolina", "Almoço", "Diárias Pagas", "Outros Diários"])
+                categoria = st.selectbox("Categoria", ["Gasolina", "Almoço", "Diárias Pagas", "Outros Diárias"])
             else:
                 categoria = st.selectbox("Categoria", ["SALARIO", "Fornecedores", "Boletos", "Outros Fixos"])
             
@@ -58,7 +58,7 @@ if menu == "Lançamento de Gastos":
                     "DDTELECOM",
                     "Outros"
                 ])
-            elif tipo_gasto == "Gastos Fixos" and categoria == "SALARIO":
+            elif tipo_gasto == "Gastos Fixos" and categoria == "Salario":
                 beneficiario = st.selectbox("Selecione o Funcionário", [
                     "Jo Morais",
                     "Josue Morais",
