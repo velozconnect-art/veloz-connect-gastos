@@ -35,9 +35,9 @@ if menu == "Lançamento de Gastos":
             tipo_gasto = st.selectbox("Tipo de Gasto", ["Gastos Diários (Variáveis)", "Gastos Fixos"])
         with col2:
             if tipo_gasto == "Gastos Diários (Variáveis)":
-                categoria = st.selectbox("Categoria", ["Gasolina", "Almoço", "Diárias Pagas", "Outros Diárias"])
+                categoria = st.selectbox("Categoria", ["Gasolina", "Almoço", "Diárias Pagas", "Outros Diários"])
             else:
-                categoria = st.selectbox("Categoria", ["Salário", "Fornecedores", "Boletos", "Outros Fixos"])
+                categoria = st.selectbox("Categoria", ["SALARIO", "Fornecedores", "Boletos", "Outros Fixos"])
             
             descricao = st.text_input("Descrição / Observação", placeholder="Ex: Viagem para manutenção...")
         
@@ -45,7 +45,6 @@ if menu == "Lançamento de Gastos":
         with col3:
             valor = st.number_input("Valor (R$)", min_value=0.0, format="%.2f", step=10.0)
         with col4:
-            # Exibe lista detalhada se for Fornecedores ou Salário
             if tipo_gasto == "Gastos Fixos" and categoria == "Fornecedores":
                 beneficiario = st.selectbox("Selecione o Fornecedor Detalhado", [
                     "GW",
@@ -59,7 +58,7 @@ if menu == "Lançamento de Gastos":
                     "DDTELECOM",
                     "Outros"
                 ])
-            elif tipo_gasto == "Gastos Fixos" and categoria == "Salário":
+            elif tipo_gasto == "Gastos Fixos" and categoria == "SALARIO":
                 beneficiario = st.selectbox("Selecione o Funcionário", [
                     "Jo Morais",
                     "Josue Morais",
@@ -103,13 +102,15 @@ elif menu == "Dashboard e Gráficos":
         col_g1, col_g2 = st.columns(2)
         with col_g1:
             st.subheader("🧊 Visão 3D de Custos por Categoria")
+            # Paleta personalizada com tons de lilás e azul
             fig_3d = px.bar(
                 df_cat, 
                 x='Categoria', 
                 y='Valor', 
                 color='Categoria', 
                 text='Valor',
-                title="Distribuição Tridimensional de Custos"
+                title="Distribuição Tridimensional de Custos",
+                color_discrete_sequence=['#9b59b6', '#3498db', '#8e44ad', '#2980b9', '#bb8fce', '#5dade2']
             )
             fig_3d.update_traces(texttemplate='R$ %{text:.2f}', textposition='outside')
             fig_3d.update_layout(showlegend=False, scene=dict(xaxis_title='Categoria', yaxis_title='Valor'))
@@ -117,7 +118,15 @@ elif menu == "Dashboard e Gráficos":
             
         with col_g2:
             st.subheader("Distribuição Percentual")
-            fig_pie = px.pie(df_cat, names='Categoria', values='Valor', title="Participação por Categoria de Gasto", hole=0.4)
+            # Paleta personalizada com tons de azul
+            fig_pie = px.pie(
+                df_cat, 
+                names='Categoria', 
+                values='Valor', 
+                title="Participação por Categoria de Gasto", 
+                hole=0.4,
+                color_discrete_sequence=px.colors.sequential.Blues_r
+            )
             st.plotly_chart(fig_pie, use_container_width=True)
     else:
         st.info("Ainda não há dados lançados. Vá até a aba 'Lançamento de Gastos' para adicionar as despesas.")
