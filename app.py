@@ -33,41 +33,48 @@ if menu == "Lançamento de Gastos":
         with col1:
             data_gasto = st.date_input("Data do Gasto")
             tipo_gasto = st.selectbox("Tipo de Gasto", ["Gastos Diários (Variáveis)", "Gastos Fixos"])
+            
         with col2:
+            # Categorias completas baseadas no tipo escolhido
             if tipo_gasto == "Gastos Diários (Variáveis)":
                 categoria = st.selectbox("Categoria", ["Gasolina", "Almoço", "Diárias Pagas", "Outros Diários"])
             else:
-                categoria = st.selectbox("Categoria", ["SALARIO", "Fornecedores", "Boletos", "Outros Fixos"])
-            
-            descricao = st.text_input("Descrição / Observação", placeholder="Ex: Viagem para manutenção...")
-        
+                categoria = st.selectbox("Categoria", ["SALARIO", "Fornecedores", "Boletos e Contas", "Outros Fixos"])
+
         col3, col4 = st.columns(2)
         with col3:
             valor = st.number_input("Valor (R$)", min_value=0.0, format="%.2f", step=10.0)
+            
         with col4:
-            if tipo_gasto == "Gastos Fixos" and categoria == "Fornecedores":
-                beneficiario = st.selectbox("Selecione o Fornecedor Detalhado", [
-                    "GW",
-                    "BR DISTRIBUIDORA",
-                    "C2 CONECT",
-                    "OIW",
-                    "DNT",
-                    "INTELBRAS",
-                    "SEGCOM",
-                    "SOMAR DISTRIBUIDORA",
-                    "DDTELECOM",
-                    "Outros"
-                ])
-            elif tipo_gasto == "Gastos Fixos" and categoria == "SALARIO":
-                beneficiario = st.selectbox("Selecione o Funcionário", [
-                    "Jo Morais",
-                    "Josue Morais",
-                    "Jona de Jesus",
-                    "Outro"
-                ])
-            else:
-                beneficiario = st.text_input("Responsável / Fornecedor / Funcionário")
-                
+            descricao = st.text_input("Descrição / Observação", placeholder="Ex: Viagem para manutenção...")
+
+        st.markdown("---")
+        st.subheader("👤 Detalhamento do Responsável / Fornecedor / Funcionário")
+        
+        # Seleção detalhada manual conforme a categoria escolhida
+        if categoria == "Fornecedores":
+            beneficiario = st.selectbox("Selecione o Fornecedor Detalhado:", [
+                "GW",
+                "BR DISTRIBUIDORA",
+                "C2 CONECT",
+                "OIW",
+                "DNT",
+                "INTELBRAS",
+                "SEGCOM",
+                "SOMAR DISTRIBUIDORA",
+                "DDTELECOM",
+                "Outros"
+            ])
+        elif categoria == "SALARIO":
+            beneficiario = st.selectbox("Selecione o Funcionário:", [
+                "Jo Morais",
+                "Josue Morais",
+                "Jona de Jesus",
+                "Outro"
+            ])
+        else:
+            beneficiario = st.text_input("Digite o Responsável / Beneficiário manualmente:", placeholder="Nome do responsável ou empresa...")
+
         submitted = st.form_submit_button("Salvar Lançamento")
         if submitted and valor > 0:
             novo_registro = pd.DataFrame([{
@@ -102,7 +109,6 @@ elif menu == "Dashboard e Gráficos":
         col_g1, col_g2 = st.columns(2)
         with col_g1:
             st.subheader("🧊 Visão 3D de Custos por Categoria")
-            # Paleta personalizada com tons de lilás e azul
             fig_3d = px.bar(
                 df_cat, 
                 x='Categoria', 
@@ -118,7 +124,6 @@ elif menu == "Dashboard e Gráficos":
             
         with col_g2:
             st.subheader("Distribuição Percentual")
-            # Paleta personalizada com tons de azul
             fig_pie = px.pie(
                 df_cat, 
                 names='Categoria', 
