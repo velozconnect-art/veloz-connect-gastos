@@ -49,7 +49,7 @@ if menu == "Lançamento de Gastos":
             descricao = st.text_input("Descrição / Observação", placeholder="Ex: Viagem para manutenção...")
 
         st.markdown("---")
-        st.subheader("👤 Detalhamento do Responsável / Fornecedores / Funcionário")
+        st.subheader("👤 Detalhamento do Responsável / Fornecedor / Funcionário")
         
         # Seleção detalhada manual conforme a categoria escolhida
         if categoria == "Fornecedores":
