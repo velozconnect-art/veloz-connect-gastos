@@ -32,13 +32,13 @@ if menu == "Lançamento de Gastos":
         col1, col2 = st.columns(2)
         with col1:
             data_gasto = st.date_input("Data do Gasto")
-            tipo_gasto = st.selectbox("Tipo de Gastos", ["Gastos Diários (Variáveis)", "Gastos Fixos"])
+            tipo_gasto = st.selectbox("Tipo de Gasto", ["Gastos Diários (Variáveis)", "Gastos Fixos"])
             
         with col2:
             if tipo_gasto == "Gastos Diários (Variáveis)":
                 categoria = st.selectbox("Categoria", ["Gasolina", "Almoço", "Diárias Pagas", "Outros Diários"])
             else:
-                categoria = st.selectbox("Categoria", ["Gasolina", "Boletos", "Salário", "Almoço", "Fornecedores", "Outros Fixos"])
+                categoria = st.selectbox("Categoria", ["SALARIO", "Fornecedores", "Boletos e Contas", "Outros Fixos"])
 
         col3, col4 = st.columns(2)
         with col3:
@@ -63,7 +63,7 @@ if menu == "Lançamento de Gastos":
                 "DDTELECOM",
                 "Outros"
             ])
-        elif categoria == "Salário":
+        elif categoria == "SALARIO":
             beneficiario = st.selectbox("Escolha o Funcionário:", [
                 "Jo Morais",
                 "Josue Morais",
@@ -105,9 +105,19 @@ elif menu == "Dashboard e Gráficos":
         
         # Agrupamentos para as três leituras
         df_cat = df.groupby('Categoria')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
-        df_colab = df.groupby('Colaborador/Fornecedor')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
-        df_forn = df[df['Categoria'] == 'Fornecedores'].groupby('Colaborador/Fornecedor')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
+        
+        # Filtrar apenas os colaboradores/funcionários cadastrados em Salário ou gerais
+        df_colab = df[df['Categoria'] == 'SALARIO'].groupby('Colaborador/Fornecedor')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
+        if df_colab.empty:
+            df_colab = df.groupby('Colaborador/Fornecedor')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
 
+        # Filtrar especificamente para o gráfico individual de Fornecedores
+        lista_fornecedores_validos = ["GW", "BR DISTRIBUIDORA", "C2 CONECT", "OIW", "DNT", "INTELBRAS", "SEGCOM", "SOMAR DISTRIBUIDORA", "DDTELECOM", "Outros"]
+        df_forn = df[df['Categoria'] == 'Fornecedores'].groupby('Colaborador/Fornecedor')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
+        if df_forn.empty:
+            df_forn = pd.DataFrame(columns=['Colaborador/Fornecedor', 'Valor'])
+
+        # Bloco de Gráficos 1 e 2 (Categoria e Colaborador)
         col_g1, col_g2 = st.columns(2)
         with col_g1:
             st.subheader("🧊 1. Custos por Categoria (3D)")
@@ -141,6 +151,7 @@ elif menu == "Dashboard e Gráficos":
 
         st.markdown("---")
         
+        # Bloco de Gráfico 3 (Fornecedor Individual) ocupando largura central
         st.subheader("🏢 3. Leitura Individual de Fornecedores")
         if not df_forn.empty:
             fig_forn = px.bar(
