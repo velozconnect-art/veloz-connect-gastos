@@ -38,7 +38,7 @@ if menu == "Lançamento de Gastos":
             if tipo_gasto == "Gastos Diários (Variáveis)":
                 categoria = st.selectbox("Categoria", ["Gasolina", "Almoço", "Diárias Pagas", "Outros Diários"])
             else:
-                categoria = st.selectbox("Categoria", ["SALARIO", "Fornecedores", "Boletos e Contas", "Outros Fixos"])
+                categoria = st.selectbox("Categoria", ["Salário", "Fornecedores", "Boletos e Contas", "Outros Fixos"])
 
         col3, col4 = st.columns(2)
         with col3:
