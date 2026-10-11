@@ -50,6 +50,7 @@ if menu == "Lançamento de Gastos":
         st.markdown("---")
         st.subheader("👤 Detalhamento do Responsável / Fornecedores / Funcionário")
         
+        # Opções manuais detalhadas para aparecer exatamente o que você digitar/selecionar
         if categoria == "Fornecedores":
             beneficiario = st.selectbox("Escolha ou digite o Fornecedor:", [
                 "GW",
@@ -71,7 +72,7 @@ if menu == "Lançamento de Gastos":
                 "Outro"
             ])
         else:
-            beneficiario = st.text_input("Digite o Responsável ou Fornecedor manualmente:", placeholder="Digite aqui...")
+            beneficiario = st.text_input("Digite o Responsável ou Fornecedor:", placeholder="Digite aqui...")
 
         submitted = st.form_submit_button("Salvar Lançamento")
         if submitted and valor > 0:
@@ -103,36 +104,40 @@ elif menu == "Dashboard e Gráficos":
         
         st.markdown("---")
         
-        # Agrupamento correto por Colaborador/Fornecedor para exibir os nomes reais nos gráficos
+        # Agrupamento para mostrar categorias e detalhamento nos gráficos
+        df_cat = df.groupby('Categoria')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
         df_detalhe = df.groupby('Colaborador/Fornecedor')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
         
         col_g1, col_g2 = st.columns(2)
         with col_g1:
-            st.subheader("🧊 Custos por Beneficiário (3D)")
+            st.subheader("🧊 Custos por Categoria (3D)")
             fig_3d = px.bar(
+                df_cat, 
+                x='Categoria', 
+                y='Valor', 
+                color='Categoria', 
+                text='Valor',
+                title="Distribuição Tridimensional por Categoria",
+                color_discrete_sequence=['#9b59b6', '#3498db', '#8e44ad', '#2980b9', '#bb8fce', '#5dade2']
+            )
+            fig_3d.update_traces(texttemplate='R$ %{text:.2f}', textposition='outside')
+            fig_3d.update_layout(showlegend=False, scene=dict(xaxis_title='Categoria', yaxis_title='Valor'))
+            st.plotly_chart(fig_3d, use_container_width=True)
+            
+        with col_g2:
+            st.subheader("👥 Custos por Fornecedor / Funcionário")
+            fig_detalhe = px.bar(
                 df_detalhe, 
                 x='Colaborador/Fornecedor', 
                 y='Valor', 
                 color='Colaborador/Fornecedor', 
                 text='Valor',
-                title="Distribuição Tridimensional por Nome/Fornecedor",
-                color_discrete_sequence=['#9b59b6', '#3498db', '#8e44ad', '#2980b9', '#bb8fce', '#5dade2']
-            )
-            fig_3d.update_traces(texttemplate='R$ %{text:.2f}', textposition='outside')
-            fig_3d.update_layout(showlegend=False, scene=dict(xaxis_title='Beneficiário', yaxis_title='Valor'))
-            st.plotly_chart(fig_3d, use_container_width=True)
-            
-        with col_g2:
-            st.subheader("Distribuição Percentual")
-            fig_pie = px.pie(
-                df_detalhe, 
-                names='Colaborador/Fornecedor', 
-                values='Valor', 
-                title="Participação Percentual por Beneficiário", 
-                hole=0.4,
+                title="Gastos Detalhados por Nome / Fornecedor",
                 color_discrete_sequence=px.colors.sequential.Blues_r
             )
-            st.plotly_chart(fig_pie, use_container_width=True)
+            fig_detalhe.update_traces(texttemplate='R$ %{text:.2f}', textposition='outside')
+            fig_detalhe.update_layout(showlegend=False)
+            st.plotly_chart(fig_detalhe, use_container_width=True)
     else:
         st.info("Ainda não há dados lançados. Vá até a aba 'Lançamento de Gastos' para adicionar as despesas.")
 
