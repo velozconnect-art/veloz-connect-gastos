@@ -35,8 +35,9 @@ if menu == "Lançamento de Gastos":
             tipo_gasto = st.selectbox("Tipo de Gasto", ["Gastos Diários (Variáveis)", "Gastos Fixos"])
         with col2:
             if tipo_gasto == "Gastos Diários (Variáveis)":
-                categoria = st.selectbox("Categoria", ["Gasolina", "Almoço", "Diárias Pagas", "Outros Diários"])
+                categoria = st.selectbox("Categoria", ["Gasolina", "Almoço", "Diárias Pagas", "Outros Diárias"])
             else:
+            if tipo_gasto == "Gastos Fixos":
                 categoria = st.selectbox("Categoria", ["Salario","Fornecedores","Boletos","Outros Fixos"])
             
             descricao = st.text_input("Descrição / Observação", placeholder="Ex: Viagem para manutenção...")
