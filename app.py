@@ -35,7 +35,6 @@ if menu == "Lançamento de Gastos":
             tipo_gasto = st.selectbox("Tipo de Gasto", ["Gastos Diários (Variáveis)", "Gastos Fixos"])
             
         with col2:
-            # Categorias completas baseadas no tipo escolhido
             if tipo_gasto == "Gastos Diários (Variáveis)":
                 categoria = st.selectbox("Categoria", ["Gasolina", "Almoço", "Diárias Pagas", "Outros Diários"])
             else:
@@ -49,11 +48,10 @@ if menu == "Lançamento de Gastos":
             descricao = st.text_input("Descrição / Observação", placeholder="Ex: Viagem para manutenção...")
 
         st.markdown("---")
-        st.subheader("👤 Detalhamento do Responsável / Fornecedor / Funcionário")
+        st.subheader("👤 Detalhamento do Responsável / Fornecedores / Funcionário")
         
-        # Seleção detalhada manual conforme a categoria escolhida
         if categoria == "Fornecedores":
-            beneficiario = st.selectbox("Selecione o Fornecedor Detalhado:", [
+            beneficiario = st.selectbox("Escolha ou digite o Fornecedor:", [
                 "GW",
                 "BR DISTRIBUIDORA",
                 "C2 CONECT",
@@ -66,14 +64,14 @@ if menu == "Lançamento de Gastos":
                 "Outros"
             ])
         elif categoria == "SALARIO":
-            beneficiario = st.selectbox("Selecione o Funcionário:", [
+            beneficiario = st.selectbox("Escolha o Funcionário:", [
                 "Jo Morais",
                 "Josue Morais",
                 "Jona de Jesus",
                 "Outro"
             ])
         else:
-            beneficiario = st.text_input("Digite o Responsável / Beneficiário manualmente:", placeholder="Nome do responsável ou empresa...")
+            beneficiario = st.text_input("Digite o Responsável ou Fornecedor manualmente:", placeholder="Digite aqui...")
 
         submitted = st.form_submit_button("Salvar Lançamento")
         if submitted and valor > 0:
@@ -104,31 +102,33 @@ elif menu == "Dashboard e Gráficos":
         col3.metric("🏢 Gastos Fixos e Salários", f"R$ {total_fixos:,.2f}")
         
         st.markdown("---")
-        df_cat = df.groupby('Categoria')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
+        
+        # Agrupamento correto por Colaborador/Fornecedor para exibir os nomes reais nos gráficos
+        df_detalhe = df.groupby('Colaborador/Fornecedor')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
         
         col_g1, col_g2 = st.columns(2)
         with col_g1:
-            st.subheader("🧊 Visão 3D de Custos por Categoria")
+            st.subheader("🧊 Custos por Beneficiário (3D)")
             fig_3d = px.bar(
-                df_cat, 
-                x='Categoria', 
+                df_detalhe, 
+                x='Colaborador/Fornecedor', 
                 y='Valor', 
-                color='Categoria', 
+                color='Colaborador/Fornecedor', 
                 text='Valor',
-                title="Distribuição Tridimensional de Custos",
+                title="Distribuição Tridimensional por Nome/Fornecedor",
                 color_discrete_sequence=['#9b59b6', '#3498db', '#8e44ad', '#2980b9', '#bb8fce', '#5dade2']
             )
             fig_3d.update_traces(texttemplate='R$ %{text:.2f}', textposition='outside')
-            fig_3d.update_layout(showlegend=False, scene=dict(xaxis_title='Categoria', yaxis_title='Valor'))
+            fig_3d.update_layout(showlegend=False, scene=dict(xaxis_title='Beneficiário', yaxis_title='Valor'))
             st.plotly_chart(fig_3d, use_container_width=True)
             
         with col_g2:
             st.subheader("Distribuição Percentual")
             fig_pie = px.pie(
-                df_cat, 
-                names='Categoria', 
+                df_detalhe, 
+                names='Colaborador/Fornecedor', 
                 values='Valor', 
-                title="Participação por Categoria de Gasto", 
+                title="Participação Percentual por Beneficiário", 
                 hole=0.4,
                 color_discrete_sequence=px.colors.sequential.Blues_r
             )
