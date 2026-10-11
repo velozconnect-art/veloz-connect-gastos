@@ -38,7 +38,7 @@ if menu == "Lançamento de Gastos":
             if tipo_gasto == "Gastos Diários (Variáveis)":
                 categoria = st.selectbox("Categoria", ["Gasolina", "Almoço", "Diárias Pagas", "Outros Diários"])
             else:
-                categoria = st.selectbox("Categoria", ["Salário", "Fornecedores", "Boletos e Contas", "Outros Fixos"])
+                categoria = st.selectbox("Categoria", ["SALARIO", "Fornecedores", "Boletos e Contas", "Outros Fixos"])
 
         col3, col4 = st.columns(2)
         with col3:
@@ -50,7 +50,6 @@ if menu == "Lançamento de Gastos":
         st.markdown("---")
         st.subheader("👤 Detalhamento do Responsável / Fornecedores / Funcionário")
         
-        # Opções manuais detalhadas para aparecer exatamente o que você digitar/selecionar
         if categoria == "Fornecedores":
             beneficiario = st.selectbox("Escolha ou digite o Fornecedor:", [
                 "GW",
@@ -72,7 +71,7 @@ if menu == "Lançamento de Gastos":
                 "Outro"
             ])
         else:
-            beneficiario = st.text_input("Digite o Responsável ou Fornecedor:", placeholder="Digite aqui...")
+            beneficiario = st.text_input("Digite o Responsável ou Fornecedor manualmente:", placeholder="Digite aqui...")
 
         submitted = st.form_submit_button("Salvar Lançamento")
         if submitted and valor > 0:
@@ -104,13 +103,24 @@ elif menu == "Dashboard e Gráficos":
         
         st.markdown("---")
         
-        # Agrupamento para mostrar categorias e detalhamento nos gráficos
+        # Agrupamentos para as três leituras
         df_cat = df.groupby('Categoria')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
-        df_detalhe = df.groupby('Colaborador/Fornecedor')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
         
+        # Filtrar apenas os colaboradores/funcionários cadastrados em Salário ou gerais
+        df_colab = df[df['Categoria'] == 'SALARIO'].groupby('Colaborador/Fornecedor')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
+        if df_colab.empty:
+            df_colab = df.groupby('Colaborador/Fornecedor')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
+
+        # Filtrar especificamente para o gráfico individual de Fornecedores
+        lista_fornecedores_validos = ["GW", "BR DISTRIBUIDORA", "C2 CONECT", "OIW", "DNT", "INTELBRAS", "SEGCOM", "SOMAR DISTRIBUIDORA", "DDTELECOM", "Outros"]
+        df_forn = df[df['Categoria'] == 'Fornecedores'].groupby('Colaborador/Fornecedor')['Valor'].sum().reset_index().sort_values(by="Valor", ascending=False)
+        if df_forn.empty:
+            df_forn = pd.DataFrame(columns=['Colaborador/Fornecedor', 'Valor'])
+
+        # Bloco de Gráficos 1 e 2 (Categoria e Colaborador)
         col_g1, col_g2 = st.columns(2)
         with col_g1:
-            st.subheader("🧊 Custos por Categoria (3D)")
+            st.subheader("🧊 1. Custos por Categoria (3D)")
             fig_3d = px.bar(
                 df_cat, 
                 x='Categoria', 
@@ -125,19 +135,40 @@ elif menu == "Dashboard e Gráficos":
             st.plotly_chart(fig_3d, use_container_width=True)
             
         with col_g2:
-            st.subheader("👥 Custos por Fornecedor / Funcionário")
-            fig_detalhe = px.bar(
-                df_detalhe, 
+            st.subheader("👥 2. Custos por Colaborador")
+            fig_colab = px.bar(
+                df_colab, 
                 x='Colaborador/Fornecedor', 
                 y='Valor', 
                 color='Colaborador/Fornecedor', 
                 text='Valor',
-                title="Gastos Detalhados por Nome / Fornecedor",
+                title="Gastos Detalhados por Funcionário / Colaborador",
                 color_discrete_sequence=px.colors.sequential.Blues_r
             )
-            fig_detalhe.update_traces(texttemplate='R$ %{text:.2f}', textposition='outside')
-            fig_detalhe.update_layout(showlegend=False)
-            st.plotly_chart(fig_detalhe, use_container_width=True)
+            fig_colab.update_traces(texttemplate='R$ %{text:.2f}', textposition='outside')
+            fig_colab.update_layout(showlegend=False)
+            st.plotly_chart(fig_colab, use_container_width=True)
+
+        st.markdown("---")
+        
+        # Bloco de Gráfico 3 (Fornecedor Individual) ocupando largura central
+        st.subheader("🏢 3. Leitura Individual de Fornecedores")
+        if not df_forn.empty:
+            fig_forn = px.bar(
+                df_forn, 
+                x='Colaborador/Fornecedor', 
+                y='Valor', 
+                color='Colaborador/Fornecedor', 
+                text='Valor',
+                title="Gastos Detalhados por Fornecedor Individual",
+                color_discrete_sequence=['#2980b9', '#1abc9c', '#3498db', '#16a085', '#5dade2', '#48c9b0']
+            )
+            fig_forn.update_traces(texttemplate='R$ %{text:.2f}', textposition='outside')
+            fig_forn.update_layout(showlegend=False)
+            st.plotly_chart(fig_forn, use_container_width=True)
+        else:
+            st.info("💡 Nenhum gasto lançado na categoria 'Fornecedores' ainda para exibir este gráfico individual.")
+
     else:
         st.info("Ainda não há dados lançados. Vá até a aba 'Lançamento de Gastos' para adicionar as despesas.")
 
